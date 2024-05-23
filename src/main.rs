@@ -30,6 +30,15 @@ fn main() {
                     if body != "/" {
                         _stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
                     }
+                } else if target.contains("/user-agent") {
+                    let user_agent = req_line
+                        .split_whitespace()
+                        .nth(7)
+                        .unwrap_or("Cannot parse currently")
+                        .split(": ")
+                        .nth(1)
+                        .unwrap_or("Cannot parse correctly");
+                    _stream.write(format!( "HTTP/1.1 200 OK \r\n Content-Type: text/plain\r\n Content-Length: {}\r\n \r\n {}", user_agent.len(), user_agent).as_bytes()).unwrap();
                 } else {
                     _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
                 }
