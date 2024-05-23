@@ -38,6 +38,12 @@ fn main() {
                         .split("User-Agent: ")
                         .nth(0)
                         .unwrap_or("Cannot parse correctly");
+                    let line = req_line
+                        .split_whitespace()
+                        .nth(5)
+                        .unwrap_or("Cannot parse currently");
+                    println!("line {}", line);
+                    println!("User-Agent: {}", user_agent);
                     _stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", user_agent.len(), user_agent).as_bytes()).unwrap();
                 } else {
                     _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
