@@ -1,3 +1,4 @@
+use std::env;
 use std::io::{BufRead, BufReader, Write};
 use std::net::TcpListener;
 
@@ -26,7 +27,7 @@ fn main() {
                 if target == "/" {
                     _stream.write(b"HTTP/1.1 200 OK\r\n\r\n").unwrap();
                 } else if target.starts_with("/echo/") {
-                    let body = target.split("/").last().unwrap_or("Cannot parse currently");
+                    let body = target.split("/").last().expect("Cannot parse currently");
                     if body != "/" {
                         _stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
                     }
@@ -39,6 +40,19 @@ fn main() {
                             _stream.write(fmt.as_bytes()).unwrap();
                             break;
                         }
+                    }
+                } else if target.starts_with("/files/") {
+                    let env = env::args().collect::<Vec<String>>();
+                    let mut dirname = env.get(2).expect("No directory given").clone();
+                    let filename = target.split("/").last().expect("Invalid filename");
+                    dirname.push_str(filename);
+                    let file = std::fs::read(dirname);
+
+                    if let Ok(file) = file {
+                        let resp = format!("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}\r\n", file.len(), String::from_utf8(file).expect("file content"));
+                        _stream.write(resp.as_bytes()).unwrap();
+                    } else {
+                        _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
                     }
                 } else {
                     _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
