@@ -1,4 +1,4 @@
-use std::io::Write;
+use std::io::{BufRead, BufReader, Write};
 use std::net::TcpListener;
 
 fn main() {
@@ -11,7 +11,25 @@ fn main() {
         match stream {
             Ok(mut _stream) => {
                 println!("accepted new connection");
-                _stream.write(b"HTTP/1.1 200 OK\r\n\r\n").expect("200 \n");
+                let buf_reader = BufReader::new(&mut _stream);
+
+                let lines = buf_reader
+                    .lines()
+                    .map(|line| line.unwrap())
+                    .take_while(|line| !line.is_empty())
+                    .collect::<Vec<String>>();
+
+                let req_line = lines.first().unwrap();
+
+                let target = req_line.split_whitespace().nth(1).unwrap();
+
+                if target == "/" {
+                    _stream.write("HTTP/1.1 200 OK\r\n\r\n".as_bytes()).unwrap();
+                } else {
+                    _stream
+                        .write("HTTP/1.1 404 Not Found\r\n\r\n".as_bytes())
+                        .unwrap();
+                }
             }
             Err(e) => {
                 println!("error: {}", e);
