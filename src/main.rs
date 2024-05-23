@@ -25,15 +25,15 @@ fn main() {
 
                 if target == "/" {
                     _stream.write(b"HTTP/1.1 200 OK\r\n\r\n").unwrap();
-                } else if target.contains("/echo/") {
+                } else if target.starts_with("/echo/") {
                     let body = target.split("/").last().unwrap_or("Cannot parse currently");
                     if body != "/" {
                         _stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
                     }
-                } else if target.contains("/user-agent") {
+                } else if target.starts_with("/user-agent") {
                     let user_agent = req_line
                         .split_whitespace()
-                        .nth(7)
+                        .nth(5)
                         .unwrap_or("Cannot parse currently")
                         .split(": ")
                         .nth(1)
