@@ -31,20 +31,15 @@ fn main() {
                         _stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
                     }
                 } else if target.starts_with("/user-agent") {
-                    let user_agent = req_line
-                        .split_whitespace()
-                        .nth(5)
-                        .unwrap_or("Cannot parse currently")
-                        .split("User-Agent: ")
-                        .nth(0)
-                        .unwrap_or("Cannot parse correctly");
-                    let line = req_line
-                        .split_whitespace()
-                        .nth(5)
-                        .unwrap_or("Cannot parse currently");
-                    println!("line {}", line);
-                    println!("User-Agent: {}", user_agent);
-                    _stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", user_agent.len(), user_agent).as_bytes()).unwrap();
+                    for i in 1..lines.len() {
+                        if lines[i].starts_with("User-Agent") {
+                            let header_val = lines[i].split_whitespace().nth(1).unwrap();
+                            let fmt  = format!(
+                                "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", header_val.len(), header_val);
+                            _stream.write(fmt.as_bytes()).unwrap();
+                            break;
+                        }
+                    }
                 } else {
                     _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
                 }
