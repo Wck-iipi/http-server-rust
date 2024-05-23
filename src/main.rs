@@ -24,11 +24,14 @@ fn main() {
                 let target = req_line.split_whitespace().nth(1).unwrap();
 
                 if target == "/" {
-                    _stream.write("HTTP/1.1 200 OK\r\n\r\n".as_bytes()).unwrap();
+                    _stream.write(b"HTTP/1.1 200 OK\r\n\r\n").unwrap();
+                } else if target.contains("/echo/") {
+                    let body = target.split("/").last().unwrap_or("Cannot parse currently");
+                    if body != "/" {
+                        _stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
+                    }
                 } else {
-                    _stream
-                        .write("HTTP/1.1 404 Not Found\r\n\r\n".as_bytes())
-                        .unwrap();
+                    _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
                 }
             }
             Err(e) => {
