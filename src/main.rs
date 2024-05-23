@@ -35,8 +35,8 @@ fn main() {
                         .split_whitespace()
                         .nth(5)
                         .unwrap_or("Cannot parse currently")
-                        .split(": ")
-                        .nth(1)
+                        .split("User-Agent: ")
+                        .nth(0)
                         .unwrap_or("Cannot parse correctly");
                     _stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", user_agent.len(), user_agent).as_bytes()).unwrap();
                 } else {
