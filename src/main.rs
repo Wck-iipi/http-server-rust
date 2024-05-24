@@ -12,13 +12,27 @@ fn main() {
         match stream {
             Ok(mut _stream) => {
                 println!("accepted new connection");
-                let buf_reader = BufReader::new(&mut _stream);
+                let mut buf_reader = BufReader::new(&mut _stream);
 
-                let lines = buf_reader
-                    .lines()
-                    .map(|line| line.unwrap())
-                    .take_while(|line| !line.is_empty())
-                    .collect::<Vec<String>>();
+                // let lines = buf_reader
+                //     .lines()
+                //     .map(|line| line.unwrap())
+                //     .take_while(|line| !line.is_empty())
+                //     .collect::<Vec<String>>();
+
+                let mut buf = String::new();
+                loop {
+                    let _ = buf_reader.read_line(&mut buf);
+
+                    println!("{:?}", buf);
+
+                    if buf.ends_with("\r\n\r\n") {
+                        break;
+                    }
+                }
+
+                let lines: Vec<_> = buf.trim_end().split("\r\n").collect();
+                println!("HTTP Request: {:#?}", lines);
 
                 let req_line = lines.first().unwrap();
 
