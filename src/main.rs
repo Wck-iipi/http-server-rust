@@ -92,7 +92,7 @@ fn main() {
                             std::fs::write(&filepath, content).expect("Cannot write to file");
                         } else {
                             let mut current_file =
-                                std::fs::File::create(&filepath).expect("Cannot create file");
+                                std::fs::File::create(filepath).expect("Cannot create file");
                             current_file.write(content).expect("Cannot write to file");
                         }
 
