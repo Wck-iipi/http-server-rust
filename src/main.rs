@@ -50,10 +50,11 @@ fn main() {
                     dirname.push_str(filename);
 
                     if type_of_request == "POST" {
-                        let content = req_line
-                            .split_whitespace()
-                            .last()
-                            .expect("No content given");
+                        // let content = req_line
+                        //     .split_whitespace()
+                        //     .last()
+                        //     .expect("No content given");
+                        let content = lines.last().unwrap();
                         let file = std::fs::write(dirname, content);
 
                         println!("array {:?}", lines);
