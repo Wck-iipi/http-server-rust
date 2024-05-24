@@ -79,8 +79,8 @@ fn main() {
                         }
                         // std::fs::write(filepath, content).expect("Couldn' write in file");
 
-                        let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
-                        _stream.write(resp.as_bytes()).unwrap();
+                        // let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
+                        // _stream.write(resp.as_bytes()).unwrap();
                     } else if type_of_request == "GET" {
                         let file = std::fs::read(filepath);
                         if let Ok(file) = file {
