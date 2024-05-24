@@ -69,6 +69,8 @@ fn main() {
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
+                        println!("content: {:?}", content);
+                        println!("filepath: {:?}", filepath);
                         std::fs::write(filepath, content).expect("Couldn' write in file");
 
                         let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
