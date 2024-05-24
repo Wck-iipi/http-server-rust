@@ -77,13 +77,12 @@ fn main() {
                     let mut dirname = env.get(2).expect("No directory given").clone();
                     let filename = target.split("/").last().expect("Invalid filename");
                     dirname.push_str(filename);
-                    println!("dirname: {}", dirname);
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap();
+                        println!("content: {}", content);
                         let file = std::fs::write(dirname, content);
 
-                        println!("array {:?}", lines);
                         if let Ok(_) = file {
                             let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
                             _stream.write(resp.as_bytes()).unwrap();
