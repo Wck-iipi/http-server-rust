@@ -67,6 +67,9 @@ fn main() {
                     let filename = target.strip_prefix("/files/").expect("Invalid filename");
                     let filepath_string = format!("{}{}", dirname, filename);
                     let filepath = std::path::Path::new(&filepath_string);
+                    stream
+                        .write("HTTP/1.1 201 Created\r\n\r\n".as_bytes())
+                        .unwrap();
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
