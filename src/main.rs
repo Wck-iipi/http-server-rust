@@ -1,5 +1,5 @@
 use std::env;
-use std::io::{BufRead, BufReader, Read, Write};
+use std::io::{BufRead, BufReader, Write};
 use std::net::TcpListener;
 
 fn convert_to_vector(content: String) -> Vec<String> {
@@ -77,19 +77,14 @@ fn main() {
                     let mut dirname = env.get(2).expect("No directory given").clone();
                     let filename = target.split("/").last().expect("Invalid filename");
                     dirname.push_str(filename);
+                    println!("dirname: {}", dirname);
 
                     if type_of_request == "POST" {
-                        // let content = req_line
-                        //     .split_whitespace()
-                        //     .last()
-                        //     .expect("No content given");
                         let content = lines.last().unwrap();
                         let file = std::fs::write(dirname, content);
 
                         println!("array {:?}", lines);
-                        // println!("content: {}", content);
                         if let Ok(_) = file {
-                            // let resp = format!("HTTP/1.1 201 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}\r\n", content.len(), String::from_utf8(file).expect("file content"));
                             let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
                             _stream.write(resp.as_bytes()).unwrap();
                         } else {
