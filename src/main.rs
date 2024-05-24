@@ -82,33 +82,21 @@ fn main() {
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
-                        let file_name = target.strip_prefix("/files/").unwrap();
-
-                        let env_args: Vec<String> = env::args().collect();
-
-                        let dir = env_args[2].clone();
-
-                        let mut file = std::fs::File::create(dir.to_owned() + file_name)
-                            .expect("file not created");
-
-                        if let Err(e) = file.write_all(content) {
-                            println!("error: {}", e);
-                        }
                         // let mut current_file = OpenOptions::new()
                         //     .create_new(true)
                         //     .write(true)
                         //     .append(true)
                         //     .open(std::path::Path::new(&dirname))
                         //     .expect("Cannot open file");
-                        // if std::path::Path::exists(std::path::Path::new(&filepath)) {
-                        //     std::fs::write(&filepath, content).expect("Cannot write to file");
-                        // } else {
-                        //     let mut current_file =
-                        //         std::fs::File::create(&filepath).expect("Cannot create file");
-                        //     current_file
-                        //         .write_all(content)
-                        //         .expect("Cannot write to file");
-                        // }
+                        if std::path::Path::exists(std::path::Path::new(&filepath)) {
+                            std::fs::write(&filepath, content).expect("Cannot write to file");
+                        } else {
+                            let mut current_file =
+                                std::fs::File::create(&filepath).expect("Cannot create file");
+                            current_file
+                                .write_all(content)
+                                .expect("Cannot write to file");
+                        }
                         let mut file = std::fs::File::create(dirname.to_owned() + filename)
                             .expect("file not created");
 
