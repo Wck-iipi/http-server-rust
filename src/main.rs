@@ -1,4 +1,5 @@
 use std::env;
+use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader, Write};
 use std::net::TcpListener;
 
@@ -80,13 +81,14 @@ fn main() {
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
-                        let file = std::fs::write(&dirname, content);
+                        let mut current_file = OpenOptions::new()
+                            .write(true)
+                            .append(true)
+                            .open(&dirname)
+                            .expect("Cannot open file");
 
-                        if let Err(_err) = file {
-                            let mut f = std::fs::File::create(&dirname)
-                                .expect("Sorry file cannot be created");
-                            f.write_all(content).expect("Cannot write to file");
-                        }
+                        current_file.write(content).expect("Cannot write to file");
+
                         let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
                         _stream.write(resp.as_bytes()).unwrap();
                     } else if type_of_request == "GET" {
