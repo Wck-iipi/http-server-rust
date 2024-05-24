@@ -14,22 +14,16 @@ fn main() {
                 println!("accepted new connection");
                 let content: &mut Vec<u8> = &mut Vec::new();
                 let mut buf_reader = BufReader::new(&mut _stream);
-                let boingboin = buf_reader.read_until('\0' as u8, content).unwrap();
+
+                buf_reader.read_until('\0' as u8, content).unwrap();
                 let content_immutable = &*content.clone();
                 let stringistring = String::from_utf8(content_immutable.to_vec()).unwrap();
-                println!("boingboin: {:}", String::from(stringistring));
 
-                // let lines = buf_reader
-                //     .lines()
-                //     .map(|line| line.unwrap())
-                //     .take_while(|line| !line.is_empty())
-                //     .collect::<Vec<String>>();
-                //
-                let lines = buf_reader
+                let lines = stringistring
                     .lines()
-                    .map(|line| line.unwrap())
                     .take_while(|line| !line.is_empty())
-                    .collect::<Vec<String>>();
+                    .collect::<Vec<&str>>();
+                println!("boingboin: {:?}", lines);
 
                 let req_line = lines.first().unwrap();
 
