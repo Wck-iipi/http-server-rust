@@ -73,10 +73,14 @@ fn main() {
                         println!("filepath: {:?}", filepath);
                         if let Ok(_) = std::fs::write(filepath, content) {
                             let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
-                            _stream.write(resp.as_bytes()).unwrap();
+                            _stream
+                                .write_all(resp.as_bytes())
+                                .expect("cannot write in stream");
                         } else {
                             println!("Couldn't write in file");
-                            _stream.write(b"HTTP/1.1 201 Created\r\n\r\n").unwrap();
+                            _stream
+                                .write(b"HTTP/1.1 201 Created\r\n\r\n")
+                                .expect("Cannot write in stream when no file");
                         }
                         // std::fs::write(filepath, content).expect("Couldn' write in file");
 
