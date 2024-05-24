@@ -4,17 +4,6 @@ use std::net::TcpListener;
 
 fn convert_to_vector(content: String) -> Vec<String> {
     let mut vec_string: Vec<String> = Vec::new();
-    // for mut i in 0..content.len() {
-    //     // split by \n
-    //     let mut line = String::new();
-    //     while i < content.len() && content.chars().nth(i).unwrap() != '\n' {
-    //         line.push(content.chars().nth(i).unwrap());
-    //         i += 1;
-    //     }
-    //     println!("line_inside_function: {}", line);
-    //     vec_string.push(line);
-    // }
-    //
     let mut i = 0;
     for j in 0..content.len() {
         if content.chars().nth(j).unwrap() == '\n' {
@@ -81,7 +70,7 @@ fn main() {
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
-                        std::fs::write(filepath, content).expect("Couldn' write in file");
+                        std::fs::write(dirname, content).expect("Couldn' write in file");
 
                         let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
                         _stream.write(resp.as_bytes()).unwrap();
