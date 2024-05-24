@@ -81,7 +81,8 @@ fn main() {
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
-                        let file = std::fs::write(dirname, content);
+                        // let file = std::fs::write(dirname, content);
+                        let file = std::fs::write(dirname, "mcqueen");
 
                         if let Ok(_file) = file {
                             println!("file written: {:?}", _file);
