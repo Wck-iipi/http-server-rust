@@ -78,6 +78,7 @@ fn main() {
                     let mut dirname = env.get(2).expect("No directory given").clone();
                     let filename = target.strip_prefix("/files/").expect("Invalid filename");
                     dirname.push_str(filename);
+                    let filepath = std::path::Path::new(dirname.as_str());
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
@@ -87,18 +88,18 @@ fn main() {
                         //     .append(true)
                         //     .open(std::path::Path::new(&dirname))
                         //     .expect("Cannot open file");
-                        if std::path::Path::exists(std::path::Path::new(&dirname)) {
-                            std::fs::write(&dirname, content).expect("Cannot write to file");
+                        if std::path::Path::exists(std::path::Path::new(&filepath)) {
+                            std::fs::write(&filepath, content).expect("Cannot write to file");
                         } else {
                             let mut current_file =
-                                std::fs::File::create(&dirname).expect("Cannot create file");
+                                std::fs::File::create(&filepath).expect("Cannot create file");
                             current_file.write(content).expect("Cannot write to file");
                         }
 
                         let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
                         _stream.write(resp.as_bytes()).unwrap();
                     } else if type_of_request == "GET" {
-                        let file = std::fs::read(dirname);
+                        let file = std::fs::read(filepath);
                         if let Ok(file) = file {
                             let resp = format!("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}\r\n", file.len(), String::from_utf8(file).expect("file content"));
                             _stream.write(resp.as_bytes()).unwrap();
