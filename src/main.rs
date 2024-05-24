@@ -79,7 +79,7 @@ fn main() {
                         } else {
                             println!("Couldn't write in file");
                             _stream
-                                .write(b"HTTP/1.1 201 Created\r\n\r\n")
+                                .write_all(b"HTTP/1.1 201 Created\r\n\r\n")
                                 .expect("Cannot write in stream when no file");
                         }
                         // std::fs::write(filepath, content).expect("Couldn' write in file");
