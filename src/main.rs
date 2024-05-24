@@ -73,9 +73,9 @@ fn main() {
                         println!("content: {:?}", content);
                         println!("filepath: {:?}", filepath);
 
-                        let mut f = std::fs::File::create_new("randomstuff").unwrap();
-
-                        f.write_all(content).unwrap();
+                        // let mut f = std::fs::File::create_new(filepath).unwrap();
+                        //
+                        // f.write_all(content).unwrap();
 
                         println!("file created");
                         stream
