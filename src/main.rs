@@ -40,20 +40,14 @@ fn main() {
         match stream {
             Ok(mut _stream) => {
                 println!("accepted new connection");
-                let content: &mut Vec<u8> = &mut Vec::new();
+                let request: &mut Vec<u8> = &mut Vec::new();
                 let mut buf_reader = BufReader::new(&mut _stream);
 
-                buf_reader.read_until('\0' as u8, content).unwrap();
-                let content_immutable = &*content.clone();
-                let stringistring = String::from_utf8(content_immutable.to_vec()).unwrap();
-                println!("content: {}", stringistring);
+                buf_reader.read_until('\0' as u8, request).unwrap();
+                let request_immutable = &*request.clone();
+                let request_string = String::from_utf8(request_immutable.to_vec()).unwrap();
 
-                let lines = stringistring
-                    .lines()
-                    .take_while(|line| !line.is_empty())
-                    .collect::<Vec<&str>>();
-                println!("lines: {:?}", lines);
-                let lines = convert_to_vector(stringistring);
+                let lines = convert_to_vector(request_string);
 
                 let req_line = lines.first().unwrap();
 
@@ -89,7 +83,7 @@ fn main() {
                         //     .split_whitespace()
                         //     .last()
                         //     .expect("No content given");
-                        // let content = lines.last().unwrap();
+                        let content = lines.last().unwrap();
                         let file = std::fs::write(dirname, content);
 
                         println!("array {:?}", lines);
