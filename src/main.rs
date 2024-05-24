@@ -65,28 +65,19 @@ fn main() {
                     let env = env::args().collect::<Vec<String>>();
                     let dirname = env.get(2).expect("No directory given").clone();
                     let filename = target.strip_prefix("/files/").expect("Invalid filename");
-                    let filepa = format!("{}{}", dirname, filename);
-                    let filepath = std::path::Path::new(&filepa);
+                    let filepath_string = format!("{}{}", dirname, filename);
+                    let filepath = std::path::Path::new(&filepath_string);
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
-                        println!("content: {:?}", content);
-                        println!("filepath: {:?}", filepath);
-                        if let Ok(_) = std::fs::write(filepath, content) {
-                            let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
-                            _stream
-                                .write_all(resp.as_bytes())
-                                .expect("cannot write in stream");
-                        } else {
-                            println!("Couldn't write in file");
-                            _stream
-                                .write_all(b"HTTP/1.1 201 Created\r\n\r\n")
-                                .expect("Cannot write in stream when no file");
-                        }
-                        // std::fs::write(filepath, content).expect("Couldn' write in file");
 
-                        // let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
-                        // _stream.write(resp.as_bytes()).unwrap();
+                        let mut f = std::fs::File::create(filepath).unwrap();
+
+                        f.write_all(content).unwrap();
+
+                        _stream
+                            .write("HTTP/1.1 201 Created\r\n\r\n".as_bytes())
+                            .unwrap();
                     } else if type_of_request == "GET" {
                         let file = std::fs::read(filepath);
                         if let Ok(file) = file {
