@@ -72,11 +72,11 @@ fn main() {
                         println!("content: {:?}", content);
                         println!("filepath: {:?}", filepath);
                         if let Ok(_) = std::fs::write(filepath, content) {
-                            let resp = format!("HTTP/1.1 200 OK\r\n\r\n");
+                            let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
                             _stream.write(resp.as_bytes()).unwrap();
                         } else {
                             println!("Couldn't write in file");
-                            _stream.write(b"HTTP/1.1 200 OK\r\n\r\n").unwrap();
+                            _stream.write(b"HTTP/1.1 201 Created\r\n\r\n").unwrap();
                         }
                         // std::fs::write(filepath, content).expect("Couldn' write in file");
 
