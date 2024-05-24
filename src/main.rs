@@ -18,7 +18,7 @@ fn convert_to_vector(content: String) -> Vec<String> {
     let mut i = 0;
     for j in 0..content.len() {
         if content.chars().nth(j).unwrap() == '\n' {
-            vec_string.push(content[i..j].to_string());
+            vec_string.push(content[i..j - 1].to_string()); // Ignore \r as well
             i = j + 1;
         }
     }
