@@ -82,6 +82,7 @@ fn main() {
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
                         let mut current_file = OpenOptions::new()
+                            .create_new(true)
                             .write(true)
                             .append(true)
                             .open(&dirname)
