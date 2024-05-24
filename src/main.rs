@@ -33,10 +33,15 @@ fn main() {
                 let mut buf_reader = BufReader::new(&mut _stream);
 
                 buf_reader.read_until('\0' as u8, request).unwrap();
-                let request_immutable = &*request.clone();
-                let request_string = String::from_utf8(request_immutable.to_vec()).unwrap();
+                // let request_immutable = &*request.clone();
+                // let request_string = String::from_utf8(request_immutable.to_vec()).unwrap();
 
-                let lines = convert_to_vector(request_string);
+                // let lines = convert_to_vector(request_string);
+                let lines: Vec<_> = buf_reader
+                    .lines()
+                    .map(|result| result.unwrap())
+                    .take_while(|line| !line.is_empty())
+                    .collect();
 
                 let req_line = lines.first().unwrap();
 
