@@ -1,6 +1,6 @@
 use std::env;
-use std::io::{BufRead, BufReader, Write};
-use std::net::TcpListener;
+use std::io::{BufRead, BufReader, Read, Write};
+use std::net::{TcpListener, TcpStream};
 
 fn convert_to_vector(content: String) -> Vec<String> {
     let mut vec_string: Vec<String> = Vec::new();
@@ -30,9 +30,12 @@ fn main() {
             Ok(mut stream) => {
                 println!("accepted new connection");
                 let request: &mut Vec<u8> = &mut Vec::new();
-                let mut buf_reader = BufReader::new(&mut stream);
 
-                buf_reader.read_until('\0' as u8, request).unwrap();
+                stream
+                    .read_to_end(request)
+                    .expect("Cannot read from stream");
+
+                // buf_reader.read_until('\0' as u8, request).unwrap();
                 let request_immutable = &*request.clone();
                 let request_string = String::from_utf8(request_immutable.to_vec()).unwrap();
 
@@ -60,9 +63,6 @@ fn main() {
                         }
                     }
                 } else if target.starts_with("/files/") {
-                    stream
-                        .write("HTTP/1.1 201 Created\r\n\r\n".as_bytes())
-                        .unwrap();
                     let type_of_request = req_line.split_whitespace().nth(0).unwrap();
 
                     let env = env::args().collect::<Vec<String>>();
@@ -76,9 +76,12 @@ fn main() {
                         println!("content: {:?}", content);
                         println!("filepath: {:?}", filepath);
 
-                        // let mut f = std::fs::File::create_new(filepath).unwrap();
-                        //
-                        // f.write_all(content).unwrap();
+                        let mut f = std::fs::File::create_new(filepath).unwrap();
+
+                        f.write_all(content).unwrap();
+                        stream
+                            .write("HTTP/1.1 201 Created\r\n\r\n".as_bytes())
+                            .unwrap();
 
                         println!("file created");
                         stream
