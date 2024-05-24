@@ -27,10 +27,10 @@ fn main() {
 
     for stream in listener.incoming() {
         match stream {
-            Ok(mut _stream) => {
+            Ok(mut stream) => {
                 println!("accepted new connection");
                 let request: &mut Vec<u8> = &mut Vec::new();
-                let mut buf_reader = BufReader::new(&mut _stream);
+                let mut buf_reader = BufReader::new(&mut stream);
 
                 buf_reader.read_until('\0' as u8, request).unwrap();
                 let request_immutable = &*request.clone();
@@ -43,11 +43,11 @@ fn main() {
                 let target = req_line.split_whitespace().nth(1).unwrap();
 
                 if target == "/" {
-                    _stream.write(b"HTTP/1.1 200 OK\r\n\r\n").unwrap();
+                    stream.write(b"HTTP/1.1 200 OK\r\n\r\n").unwrap();
                 } else if target.starts_with("/echo/") {
                     let body = target.split("/").last().expect("Cannot parse currently");
                     if body != "/" {
-                        _stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
+                        stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
                     }
                 } else if target.starts_with("/user-agent") {
                     for i in 1..lines.len() {
@@ -55,7 +55,7 @@ fn main() {
                             let header_val = lines[i].split_whitespace().nth(1).unwrap();
                             let fmt  = format!(
                                 "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", header_val.len(), header_val);
-                            _stream.write(fmt.as_bytes()).unwrap();
+                            stream.write(fmt.as_bytes()).unwrap();
                             break;
                         }
                     }
@@ -76,20 +76,20 @@ fn main() {
                         f.write_all(content).unwrap();
 
                         println!("file created");
-                        _stream
+                        stream
                             .write("HTTP/1.1 201 Created\r\n\r\n".as_bytes())
                             .unwrap();
                     } else if type_of_request == "GET" {
                         let file = std::fs::read(filepath);
                         if let Ok(file) = file {
                             let resp = format!("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}\r\n", file.len(), String::from_utf8(file).expect("file content"));
-                            _stream.write(resp.as_bytes()).unwrap();
+                            stream.write(resp.as_bytes()).unwrap();
                         } else {
-                            _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
+                            stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
                         }
                     }
                 } else {
-                    _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
+                    stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
                 }
             }
             Err(e) => {
