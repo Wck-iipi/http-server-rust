@@ -63,14 +63,13 @@ fn main() {
                     let type_of_request = req_line.split_whitespace().nth(0).unwrap();
 
                     let env = env::args().collect::<Vec<String>>();
-                    let mut dirname = env.get(2).expect("No directory given").clone();
+                    let dirname = env.get(2).expect("No directory given").clone();
                     let filename = target.strip_prefix("/files/").expect("Invalid filename");
-                    dirname.push_str(filename);
-                    let filepath = std::path::Path::new(dirname.as_str());
+                    let filepath = format!("{}/{}", &dirname, filename);
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
-                        std::fs::write(dirname, content).expect("Couldn' write in file");
+                        std::fs::write(filepath, content).expect("Couldn' write in file");
 
                         let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
                         _stream.write(resp.as_bytes()).unwrap();
