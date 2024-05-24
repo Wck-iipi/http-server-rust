@@ -2,6 +2,20 @@ use std::env;
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpListener;
 
+fn convert_to_vector(content: String) -> Vec<String> {
+    let mut vec_string: Vec<String> = Vec::new();
+    for mut i in 0..content.len() {
+        // split by \n
+        let mut line = String::new();
+        while i < content.len() && content.chars().nth(i).unwrap() != '\n' {
+            line.push(content.chars().nth(i).unwrap());
+            i += 1;
+        }
+        vec_string.push(line);
+    }
+    vec_string
+}
+
 fn main() {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     println!("Logs from your program will appear here!");
@@ -20,10 +34,11 @@ fn main() {
                 let stringistring = String::from_utf8(content_immutable.to_vec()).unwrap();
                 println!("content: {}", stringistring);
 
-                let lines = stringistring
-                    .lines()
-                    .take_while(|line| !line.is_empty())
-                    .collect::<Vec<&str>>();
+                // let lines = stringistring
+                //     .lines()
+                //     .take_while(|line| !line.is_empty())
+                //     .collect::<Vec<&str>>();
+                let lines = convert_to_vector(stringistring);
                 println!("boingboin: {:?}", lines);
 
                 let req_line = lines.first().unwrap();
