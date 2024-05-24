@@ -71,7 +71,7 @@ fn main() {
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
 
-                        let mut f = std::fs::File::create(filepath).unwrap();
+                        let mut f = std::fs::File::create_new(filepath).unwrap();
 
                         f.write_all(content).unwrap();
 
