@@ -75,6 +75,7 @@ fn main() {
 
                         f.write_all(content).unwrap();
 
+                        println!("file created");
                         _stream
                             .write("HTTP/1.1 201 Created\r\n\r\n".as_bytes())
                             .unwrap();
