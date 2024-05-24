@@ -82,13 +82,12 @@ fn main() {
                         let content = lines.last().unwrap().as_bytes();
                         let file = std::fs::write(dirname, content);
 
-                        if let Ok(_file) = file {
-                            println!("file written: {:?}", _file);
+                        if let Err(file) = file {
+                            println!("{}", file);
+                            _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
+                        } else {
                             let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
                             _stream.write(resp.as_bytes()).unwrap();
-                        } else {
-                            println!("Wrong file location");
-                            _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
                         }
                     } else if type_of_request == "GET" {
                         let file = std::fs::read(dirname);
