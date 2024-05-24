@@ -15,7 +15,9 @@ fn main() {
                 let content: &mut Vec<u8> = &mut Vec::new();
                 let mut buf_reader = BufReader::new(&mut _stream);
                 let boingboin = buf_reader.read_until('\0' as u8, content).unwrap();
-                println!("boingboin: {:?}", boingboin);
+                let content_immutable = &*content.clone();
+                let stringistring = String::from_utf8(content_immutable.to_vec()).unwrap();
+                println!("boingboin: {:}", String::from(stringistring));
 
                 // let lines = buf_reader
                 //     .lines()
