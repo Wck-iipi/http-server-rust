@@ -80,15 +80,15 @@ fn main() {
                     println!("dirname: {:?}", dirname);
 
                     if type_of_request == "POST" {
-                        let content = lines.last().unwrap();
-                        let file = std::fs::write(dirname, content.as_bytes());
+                        let content = lines.last().unwrap().as_bytes();
+                        let file = std::fs::write(dirname, content);
 
                         if let Ok(_file) = file {
                             println!("file written: {:?}", _file);
                             let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
                             _stream.write(resp.as_bytes()).unwrap();
                         } else {
-                            println!("Wrong file");
+                            println!("Wrong file location");
                             _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
                         }
                     } else if type_of_request == "GET" {
