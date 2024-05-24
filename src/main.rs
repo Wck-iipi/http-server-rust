@@ -85,8 +85,12 @@ fn main() {
                             .create_new(true)
                             .write(true)
                             .append(true)
-                            .open(&dirname)
+                            .open(std::path::Path::new(&dirname))
                             .expect("Cannot open file");
+                        // if std::path::Path::exists(std::path::Path::new(&dirname)) {
+                        //     _stream.write(b"HTTP/1.1 409 Conflict\r\n\r\n").unwrap();
+                        //     continue;
+                        // }
 
                         current_file.write(content).expect("Cannot write to file");
 
