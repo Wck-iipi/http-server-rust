@@ -56,7 +56,7 @@ fn main() {
                             .expect("No content given");
                         let file = std::fs::write(dirname, content);
 
-                        println!("array {}", req_line);
+                        println!("array {:?}", lines);
                         // println!("content: {}", content);
                         if let Ok(file) = file {
                             // let resp = format!("HTTP/1.1 201 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}\r\n", content.len(), String::from_utf8(file).expect("file content"));
