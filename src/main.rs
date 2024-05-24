@@ -1,5 +1,5 @@
 use std::env;
-use std::io::{BufRead, BufReader, Write};
+use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpListener;
 
 fn main() {
@@ -12,27 +12,22 @@ fn main() {
         match stream {
             Ok(mut _stream) => {
                 println!("accepted new connection");
+                let content: &mut Vec<u8> = &mut Vec::new();
                 let mut buf_reader = BufReader::new(&mut _stream);
+                let boingboin = buf_reader.read_until('\0' as u8, content).unwrap();
+                println!("boingboin: {}", boingboin);
 
                 // let lines = buf_reader
                 //     .lines()
                 //     .map(|line| line.unwrap())
                 //     .take_while(|line| !line.is_empty())
                 //     .collect::<Vec<String>>();
-
-                let mut buf = String::new();
-                loop {
-                    let _ = buf_reader.read_line(&mut buf);
-
-                    println!("{:?}", buf);
-
-                    if buf.ends_with("\r\n\r\n") {
-                        break;
-                    }
-                }
-
-                let lines: Vec<_> = buf.trim_end().split("\r\n").collect();
-                println!("HTTP Request: {:#?}", lines);
+                //
+                let lines = buf_reader
+                    .lines()
+                    .map(|line| line.unwrap())
+                    .take_while(|line| !line.is_empty())
+                    .collect::<Vec<String>>();
 
                 let req_line = lines.first().unwrap();
 
@@ -68,7 +63,7 @@ fn main() {
                         //     .split_whitespace()
                         //     .last()
                         //     .expect("No content given");
-                        let content = lines.last().unwrap();
+                        // let content = lines.last().unwrap();
                         let file = std::fs::write(dirname, content);
 
                         println!("array {:?}", lines);
