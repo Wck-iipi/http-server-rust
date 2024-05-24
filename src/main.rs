@@ -81,18 +81,19 @@ fn main() {
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
-                        let mut current_file = OpenOptions::new()
-                            .create_new(true)
-                            .write(true)
-                            .append(true)
-                            .open(std::path::Path::new(&dirname))
-                            .expect("Cannot open file");
-                        // if std::path::Path::exists(std::path::Path::new(&dirname)) {
-                        //     _stream.write(b"HTTP/1.1 409 Conflict\r\n\r\n").unwrap();
-                        //     continue;
-                        // }
-
-                        current_file.write(content).expect("Cannot write to file");
+                        // let mut current_file = OpenOptions::new()
+                        //     .create_new(true)
+                        //     .write(true)
+                        //     .append(true)
+                        //     .open(std::path::Path::new(&dirname))
+                        //     .expect("Cannot open file");
+                        if std::path::Path::exists(std::path::Path::new(&dirname)) {
+                            std::fs::write(&dirname, content).expect("Cannot write to file");
+                        } else {
+                            let mut current_file =
+                                std::fs::File::create(&dirname).expect("Cannot create file");
+                            current_file.write(content).expect("Cannot write to file");
+                        }
 
                         let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
                         _stream.write(resp.as_bytes()).unwrap();
