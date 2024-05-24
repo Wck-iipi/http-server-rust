@@ -65,7 +65,7 @@ fn main() {
                     let env = env::args().collect::<Vec<String>>();
                     let dirname = env.get(2).expect("No directory given").clone();
                     let filename = target.strip_prefix("/files/").expect("Invalid filename");
-                    let filepath = format!("{}/{}", &dirname, filename);
+                    let filepath = format!("{}{}", &dirname, filename);
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
