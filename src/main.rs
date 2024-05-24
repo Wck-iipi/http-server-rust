@@ -42,17 +42,36 @@ fn main() {
                         }
                     }
                 } else if target.starts_with("/files/") {
+                    let type_of_request = req_line.split_whitespace().nth(0).unwrap();
+
                     let env = env::args().collect::<Vec<String>>();
                     let mut dirname = env.get(2).expect("No directory given").clone();
                     let filename = target.split("/").last().expect("Invalid filename");
                     dirname.push_str(filename);
-                    let file = std::fs::read(dirname);
 
-                    if let Ok(file) = file {
-                        let resp = format!("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}\r\n", file.len(), String::from_utf8(file).expect("file content"));
-                        _stream.write(resp.as_bytes()).unwrap();
-                    } else {
-                        _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
+                    if type_of_request == "POST" {
+                        let content = req_line
+                            .split_whitespace()
+                            .last()
+                            .expect("No content given");
+                        let file = std::fs::write(dirname, content);
+
+                        println!("content: {}", content);
+                        if let Ok(file) = file {
+                            // let resp = format!("HTTP/1.1 201 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}\r\n", content.len(), String::from_utf8(file).expect("file content"));
+                            let resp = format!("HTTP/1.1 201 OK\r\n\r\n");
+                            _stream.write(resp.as_bytes()).unwrap();
+                        } else {
+                            _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
+                        }
+                    } else if type_of_request == "GET" {
+                        let file = std::fs::read(dirname);
+                        if let Ok(file) = file {
+                            let resp = format!("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}\r\n", file.len(), String::from_utf8(file).expect("file content"));
+                            _stream.write(resp.as_bytes()).unwrap();
+                        } else {
+                            _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
+                        }
                     }
                 } else {
                     _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
