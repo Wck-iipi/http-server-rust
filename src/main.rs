@@ -83,7 +83,7 @@ fn main() {
                         let file = std::fs::write(&dirname, content);
 
                         if let Err(_err) = file {
-                            let mut f = std::fs::File::create_new(&dirname)
+                            let mut f = std::fs::File::create(&dirname)
                                 .expect("Sorry file cannot be created");
                             f.write_all(content).expect("Cannot write to file");
                         }
