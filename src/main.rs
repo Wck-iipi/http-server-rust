@@ -1,6 +1,6 @@
 use std::env;
-use std::io::{BufRead, BufReader, Read, Write};
-use std::net::{TcpListener, TcpStream};
+use std::io::{Read, Write};
+use std::net::TcpListener;
 
 fn convert_to_vector(content: String) -> Vec<String> {
     let mut vec_string: Vec<String> = Vec::new();
@@ -29,76 +29,79 @@ fn main() {
         match stream {
             Ok(mut stream) => {
                 println!("accepted new connection");
-                let request: &mut Vec<u8> = &mut Vec::new();
 
-                stream
-                    .read_to_end(request)
-                    .expect("Cannot read from stream");
+                let _handle = std::thread::spawn(move || {
+                    let request: &mut Vec<u8> = &mut Vec::new();
 
-                // buf_reader.read_until('\0' as u8, request).unwrap();
-                let request_immutable = &*request.clone();
-                let request_string = String::from_utf8(request_immutable.to_vec()).unwrap();
+                    stream
+                        .read_to_end(request)
+                        .expect("Cannot read from stream");
 
-                let lines = convert_to_vector(request_string);
+                    // buf_reader.read_until('\0' as u8, request).unwrap();
+                    let request_immutable = &*request.clone();
+                    let request_string = String::from_utf8(request_immutable.to_vec()).unwrap();
 
-                let req_line = lines.first().unwrap();
+                    let lines = convert_to_vector(request_string);
 
-                let target = req_line.split_whitespace().nth(1).unwrap();
+                    let req_line = lines.first().unwrap();
 
-                if target == "/" {
-                    stream.write(b"HTTP/1.1 200 OK\r\n\r\n").unwrap();
-                } else if target.starts_with("/echo/") {
-                    let body = target.split("/").last().expect("Cannot parse currently");
-                    if body != "/" {
-                        stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
-                    }
-                } else if target.starts_with("/user-agent") {
-                    for i in 1..lines.len() {
-                        if lines[i].starts_with("User-Agent") {
-                            let header_val = lines[i].split_whitespace().nth(1).unwrap();
-                            let fmt  = format!(
+                    let target = req_line.split_whitespace().nth(1).unwrap();
+
+                    if target == "/" {
+                        stream.write(b"HTTP/1.1 200 OK\r\n\r\n").unwrap();
+                    } else if target.starts_with("/echo/") {
+                        let body = target.split("/").last().expect("Cannot parse currently");
+                        if body != "/" {
+                            stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
+                        }
+                    } else if target.starts_with("/user-agent") {
+                        for i in 1..lines.len() {
+                            if lines[i].starts_with("User-Agent") {
+                                let header_val = lines[i].split_whitespace().nth(1).unwrap();
+                                let fmt  = format!(
                                 "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", header_val.len(), header_val);
-                            stream.write(fmt.as_bytes()).unwrap();
-                            break;
+                                stream.write(fmt.as_bytes()).unwrap();
+                                break;
+                            }
                         }
-                    }
-                } else if target.starts_with("/files/") {
-                    let type_of_request = req_line.split_whitespace().nth(0).unwrap();
+                    } else if target.starts_with("/files/") {
+                        let type_of_request = req_line.split_whitespace().nth(0).unwrap();
 
-                    let env = env::args().collect::<Vec<String>>();
-                    let dirname = env.get(2).expect("No directory given").clone();
-                    let filename = target.strip_prefix("/files/").expect("Invalid filename");
-                    let filepath_string = format!("{}{}", dirname, filename);
-                    let filepath = std::path::Path::new(&filepath_string);
+                        let env = env::args().collect::<Vec<String>>();
+                        let dirname = env.get(2).expect("No directory given").clone();
+                        let filename = target.strip_prefix("/files/").expect("Invalid filename");
+                        let filepath_string = format!("{}{}", dirname, filename);
+                        let filepath = std::path::Path::new(&filepath_string);
 
-                    if type_of_request == "POST" {
-                        let content = lines.last().unwrap().as_bytes();
-                        println!("content: {:?}", content);
-                        println!("filepath: {:?}", filepath);
+                        if type_of_request == "POST" {
+                            let content = lines.last().unwrap().as_bytes();
+                            println!("content: {:?}", content);
+                            println!("filepath: {:?}", filepath);
 
-                        let mut f = std::fs::File::create_new(filepath).unwrap();
+                            let mut f = std::fs::File::create_new(filepath).unwrap();
 
-                        f.write_all(content).unwrap();
-                        stream
-                            .write("HTTP/1.1 201 Created\r\n\r\n".as_bytes())
-                            .unwrap();
+                            f.write_all(content).unwrap();
+                            stream
+                                .write("HTTP/1.1 201 Created\r\n\r\n".as_bytes())
+                                .unwrap();
 
-                        println!("file created");
-                        stream
-                            .write("HTTP/1.1 201 Created\r\n\r\n".as_bytes())
-                            .unwrap();
-                    } else if type_of_request == "GET" {
-                        let file = std::fs::read(filepath);
-                        if let Ok(file) = file {
-                            let resp = format!("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}\r\n", file.len(), String::from_utf8(file).expect("file content"));
-                            stream.write(resp.as_bytes()).unwrap();
-                        } else {
-                            stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
+                            println!("file created");
+                            stream
+                                .write("HTTP/1.1 201 Created\r\n\r\n".as_bytes())
+                                .unwrap();
+                        } else if type_of_request == "GET" {
+                            let file = std::fs::read(filepath);
+                            if let Ok(file) = file {
+                                let resp = format!("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}\r\n", file.len(), String::from_utf8(file).expect("file content"));
+                                stream.write(resp.as_bytes()).unwrap();
+                            } else {
+                                stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
+                            }
                         }
+                    } else {
+                        stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
                     }
-                } else {
-                    stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
-                }
+                });
             }
             Err(e) => {
                 println!("error: {}", e);
