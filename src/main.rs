@@ -32,7 +32,7 @@ fn main() {
                 let request: &mut Vec<u8> = &mut Vec::new();
                 let mut buf_reader = BufReader::new(&mut _stream);
 
-                buf_reader.read_until('\0' as u8, request).unwrap();
+                // buf_reader.read_until('\0' as u8, request).unwrap();
                 // let request_immutable = &*request.clone();
                 // let request_string = String::from_utf8(request_immutable.to_vec()).unwrap();
 
