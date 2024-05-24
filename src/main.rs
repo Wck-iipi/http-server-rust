@@ -82,6 +82,18 @@ fn main() {
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
+                        let file_name = target.strip_prefix("/files/").unwrap();
+
+                        let env_args: Vec<String> = env::args().collect();
+
+                        let dir = env_args[2].clone();
+
+                        let mut file = std::fs::File::create(dir.to_owned() + file_name)
+                            .expect("file not created");
+
+                        if let Err(e) = file.write_all(content) {
+                            println!("error: {}", e);
+                        }
                         // let mut current_file = OpenOptions::new()
                         //     .create_new(true)
                         //     .write(true)
