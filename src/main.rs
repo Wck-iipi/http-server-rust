@@ -39,7 +39,7 @@ fn main() {
                 //     .take_while(|line| !line.is_empty())
                 //     .collect::<Vec<&str>>();
                 let lines = convert_to_vector(stringistring);
-                println!("boingboin: {:?}", lines);
+                println!("lines: {:?}", lines);
 
                 let req_line = lines.first().unwrap();
 
@@ -80,7 +80,7 @@ fn main() {
 
                         println!("array {:?}", lines);
                         // println!("content: {}", content);
-                        if let Ok(file) = file {
+                        if let Ok(_) = file {
                             // let resp = format!("HTTP/1.1 201 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}\r\n", content.len(), String::from_utf8(file).expect("file content"));
                             let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
                             _stream.write(resp.as_bytes()).unwrap();
