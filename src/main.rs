@@ -88,12 +88,20 @@ fn main() {
                         //     .append(true)
                         //     .open(std::path::Path::new(&dirname))
                         //     .expect("Cannot open file");
-                        if std::path::Path::exists(std::path::Path::new(&filepath)) {
-                            std::fs::write(&filepath, content).expect("Cannot write to file");
-                        } else {
-                            let mut current_file =
-                                std::fs::File::create(filepath).expect("Cannot create file");
-                            current_file.write(content).expect("Cannot write to file");
+                        // if std::path::Path::exists(std::path::Path::new(&filepath)) {
+                        //     std::fs::write(&filepath, content).expect("Cannot write to file");
+                        // } else {
+                        //     let mut current_file =
+                        //         std::fs::File::create(&filepath).expect("Cannot create file");
+                        //     current_file
+                        //         .write_all(content)
+                        //         .expect("Cannot write to file");
+                        // }
+                        let mut file = std::fs::File::create(dirname.to_owned() + filename)
+                            .expect("file not created");
+
+                        if let Err(e) = file.write_all(content) {
+                            println!("error: {}", e);
                         }
 
                         let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
