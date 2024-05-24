@@ -70,8 +70,10 @@ fn main() {
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
+                        println!("content: {:?}", content);
+                        println!("filepath: {:?}", filepath);
 
-                        let mut f = std::fs::File::create_new(filepath).unwrap();
+                        let mut f = std::fs::File::create_new("randomstuff").unwrap();
 
                         f.write_all(content).unwrap();
 
