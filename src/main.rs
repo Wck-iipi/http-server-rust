@@ -80,10 +80,9 @@ fn main() {
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap();
-                        println!("content: {}", content);
                         let file = std::fs::write(dirname, content);
 
-                        if let Ok(_) = file {
+                        if let Ok(_file) = file {
                             let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
                             _stream.write(resp.as_bytes()).unwrap();
                         } else {
