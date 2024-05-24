@@ -82,12 +82,7 @@ fn main() {
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
-                        let mut file = std::fs::File::create(dirname.to_owned() + filename)
-                            .expect("file not created");
-
-                        if let Err(e) = file.write_all(content) {
-                            println!("error: {}", e);
-                        }
+                        std::fs::write(filepath, content).expect("Couldn' write in file");
 
                         let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
                         _stream.write(resp.as_bytes()).unwrap();
