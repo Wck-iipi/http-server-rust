@@ -4,16 +4,26 @@ use std::net::TcpListener;
 
 fn convert_to_vector(content: String) -> Vec<String> {
     let mut vec_string: Vec<String> = Vec::new();
-    for mut i in 0..content.len() {
-        // split by \n
-        let mut line = String::new();
-        while i < content.len() && content.chars().nth(i).unwrap() != '\n' {
-            line.push(content.chars().nth(i).unwrap());
-            i += 1;
+    // for mut i in 0..content.len() {
+    //     // split by \n
+    //     let mut line = String::new();
+    //     while i < content.len() && content.chars().nth(i).unwrap() != '\n' {
+    //         line.push(content.chars().nth(i).unwrap());
+    //         i += 1;
+    //     }
+    //     println!("line_inside_function: {}", line);
+    //     vec_string.push(line);
+    // }
+    //
+    let mut i = 0;
+    for j in 0..content.len() {
+        if content.chars().nth(j).unwrap() == '\n' {
+            vec_string.push(content[i..j].to_string());
+            i = j + 1;
         }
-        println!("line_inside_function: {}", line);
-        vec_string.push(line);
     }
+    vec_string.push(content[i..].to_string());
+    println!("vec_string: {:?}", vec_string);
     vec_string
 }
 
@@ -39,9 +49,8 @@ fn main() {
                     .lines()
                     .take_while(|line| !line.is_empty())
                     .collect::<Vec<&str>>();
-                println!("Incoming lines");
-                let lines = convert_to_vector(stringistring);
                 println!("lines: {:?}", lines);
+                let lines = convert_to_vector(stringistring);
 
                 let req_line = lines.first().unwrap();
 
