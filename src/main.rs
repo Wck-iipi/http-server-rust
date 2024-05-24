@@ -32,16 +32,11 @@ fn main() {
                 let request: &mut Vec<u8> = &mut Vec::new();
                 let mut buf_reader = BufReader::new(&mut _stream);
 
-                // buf_reader.read_until('\0' as u8, request).unwrap();
-                // let request_immutable = &*request.clone();
-                // let request_string = String::from_utf8(request_immutable.to_vec()).unwrap();
+                buf_reader.read_until('\0' as u8, request).unwrap();
+                let request_immutable = &*request.clone();
+                let request_string = String::from_utf8(request_immutable.to_vec()).unwrap();
 
-                // let lines = convert_to_vector(request_string);
-                let lines: Vec<_> = buf_reader
-                    .lines()
-                    .map(|result| result.unwrap())
-                    .take_while(|line| !line.is_empty())
-                    .collect();
+                let lines = convert_to_vector(request_string);
 
                 let req_line = lines.first().unwrap();
 
@@ -76,7 +71,13 @@ fn main() {
                         let content = lines.last().unwrap().as_bytes();
                         println!("content: {:?}", content);
                         println!("filepath: {:?}", filepath);
-                        std::fs::write(filepath, content).expect("Couldn' write in file");
+                        if let Ok(_) = std::fs::write(filepath, content) {
+                            let resp = format!("HTTP/1.1 200 OK\r\n\r\n");
+                            _stream.write(resp.as_bytes()).unwrap();
+                        } else {
+                            _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
+                        }
+                        // std::fs::write(filepath, content).expect("Couldn' write in file");
 
                         let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
                         _stream.write(resp.as_bytes()).unwrap();
