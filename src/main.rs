@@ -11,6 +11,7 @@ fn convert_to_vector(content: String) -> Vec<String> {
             line.push(content.chars().nth(i).unwrap());
             i += 1;
         }
+        println!("line_inside_function: {}", line);
         vec_string.push(line);
     }
     vec_string
@@ -34,10 +35,11 @@ fn main() {
                 let stringistring = String::from_utf8(content_immutable.to_vec()).unwrap();
                 println!("content: {}", stringistring);
 
-                // let lines = stringistring
-                //     .lines()
-                //     .take_while(|line| !line.is_empty())
-                //     .collect::<Vec<&str>>();
+                let lines = stringistring
+                    .lines()
+                    .take_while(|line| !line.is_empty())
+                    .collect::<Vec<&str>>();
+                println!("Incoming lines");
                 let lines = convert_to_vector(stringistring);
                 println!("lines: {:?}", lines);
 
