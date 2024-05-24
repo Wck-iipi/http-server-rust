@@ -76,7 +76,7 @@ fn main() {
                             _stream.write(resp.as_bytes()).unwrap();
                         } else {
                             println!("Couldn't write in file");
-                            _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
+                            _stream.write(b"HTTP/1.1 200 OK\r\n\r\n").unwrap();
                         }
                         // std::fs::write(filepath, content).expect("Couldn' write in file");
 
