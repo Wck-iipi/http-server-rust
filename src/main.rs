@@ -75,21 +75,20 @@ fn main() {
 
                     let env = env::args().collect::<Vec<String>>();
                     let mut dirname = env.get(2).expect("No directory given").clone();
-                    // let filename = target.split("/").last().expect("Invalid filename");
                     let filename = target.strip_prefix("/files/").expect("Invalid filename");
                     dirname.push_str(filename);
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap().as_bytes();
-                        let file = std::fs::write(dirname, content);
+                        let file = std::fs::write(&dirname, content);
 
-                        if let Err(err) = file {
-                            println!("{}", err);
-                            _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
-                        } else {
-                            let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
-                            _stream.write(resp.as_bytes()).unwrap();
+                        if let Err(_err) = file {
+                            let mut f = std::fs::File::create_new(&dirname)
+                                .expect("Sorry file cannot be created");
+                            f.write_all(content).expect("Cannot write to file");
                         }
+                        let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
+                        _stream.write(resp.as_bytes()).unwrap();
                     } else if type_of_request == "GET" {
                         let file = std::fs::read(dirname);
                         if let Ok(file) = file {
