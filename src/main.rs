@@ -15,7 +15,7 @@ fn main() {
                 let content: &mut Vec<u8> = &mut Vec::new();
                 let mut buf_reader = BufReader::new(&mut _stream);
                 let boingboin = buf_reader.read_until('\0' as u8, content).unwrap();
-                println!("boingboin: {}", boingboin);
+                println!("boingboin: {:?}", boingboin);
 
                 // let lines = buf_reader
                 //     .lines()
