@@ -83,6 +83,7 @@ fn main() {
                         let file = std::fs::write(dirname, content);
 
                         if let Ok(_file) = file {
+                            println!("file written: {:?}", _file);
                             let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
                             _stream.write(resp.as_bytes()).unwrap();
                         } else {
