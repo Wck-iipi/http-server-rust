@@ -65,7 +65,7 @@ fn main() {
                     let env = env::args().collect::<Vec<String>>();
                     let dirname = env.get(2).expect("No directory given").clone();
                     let filename = target.strip_prefix("/files/").expect("Invalid filename");
-                    let filepa = format!("{}{}", &dirname, filename);
+                    let filepa = format!("{}{}", dirname, filename);
                     let filepath = std::path::Path::new(&filepa);
 
                     if type_of_request == "POST" {
