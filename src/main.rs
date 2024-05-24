@@ -77,17 +77,18 @@ fn main() {
                     let mut dirname = env.get(2).expect("No directory given").clone();
                     let filename = target.split("/").last().expect("Invalid filename");
                     dirname.push_str(filename);
+                    println!("dirname: {:?}", dirname);
 
                     if type_of_request == "POST" {
                         let content = lines.last().unwrap();
-                        let file = std::fs::write(dirname, content);
-                        println!("file written above: {:?}", file);
+                        let file = std::fs::write(dirname, content.as_bytes());
 
                         if let Ok(_file) = file {
                             println!("file written: {:?}", _file);
                             let resp = format!("HTTP/1.1 201 Created\r\n\r\n");
                             _stream.write(resp.as_bytes()).unwrap();
                         } else {
+                            println!("Wrong file");
                             _stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
                         }
                     } else if type_of_request == "GET" {
