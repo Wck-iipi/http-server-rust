@@ -58,14 +58,21 @@ fn main() {
                                 stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
                             }
                         } else {
-                            let encoding_type = lines
+                            let encoding_types = lines
                                 .iter()
                                 .find(|line| line.to_lowercase().starts_with("accept-encoding:"))
                                 .unwrap()
-                                .split_whitespace()
-                                .nth(1)
-                                .unwrap();
-                            if encoding_type == "gzip" {
+                                .strip_prefix("Accept-Encoding: ")
+                                .unwrap()
+                                .split(", ")
+                                .collect::<Vec<&str>>();
+
+                            println!("encoding_types: {:?}", encoding_types);
+
+                            if encoding_types
+                                .iter()
+                                .any(|line| line.to_lowercase().eq("gzip"))
+                            {
                                 let body: String = "foo".to_string();
                                 stream.write(format!("HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
                             } else {
