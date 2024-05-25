@@ -1,3 +1,6 @@
+use flate2::write::GzEncoder;
+use flate2::Compression;
+use nom::AsBytes;
 use std::env;
 use std::fs::OpenOptions;
 use std::io::{Read, Write};
@@ -51,9 +54,9 @@ fn main() {
                         let has_accept_encoding = lines
                             .iter()
                             .any(|line| line.starts_with("Accept-Encoding:"));
+                        let body = target.split("/").last().expect("Cannot parse currently");
 
                         if !has_accept_encoding {
-                            let body = target.split("/").last().expect("Cannot parse currently");
                             if body != "/" {
                                 stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
                             }
@@ -73,10 +76,21 @@ fn main() {
                                 .iter()
                                 .any(|line| line.to_lowercase().eq("gzip"))
                             {
-                                let body: String = "foo".to_string();
-                                stream.write(format!("HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
+                                let mut encoder =
+                                    GzEncoder::new(Vec::new(), Compression::default());
+                                encoder
+                                    .write_all(body.as_bytes())
+                                    .expect("Failed to write to encoder");
+                                let compressed_body =
+                                    encoder.finish().expect("Failed to finish encoding");
+                                let response = [
+                                    "HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length:".as_bytes(),
+                                    compressed_body.len().to_string().as_bytes(),
+                                    "\r\n\r\n".as_bytes(),
+                                    compressed_body.as_bytes()
+                                    ].concat();
+                                stream.write(&response).unwrap();
                             } else {
-                                let body: String = "bar".to_string();
                                 stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
                             }
                         }
