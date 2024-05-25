@@ -1,4 +1,5 @@
 use std::env;
+use std::fs::OpenOptions;
 use std::io::{Read, Write};
 use std::net::TcpListener;
 
@@ -31,16 +32,13 @@ fn main() {
                 println!("accepted new connection");
 
                 let _handle = std::thread::spawn(move || {
-                    let request: &mut Vec<u8> = &mut Vec::new();
+                    let mut request_buffer = [0; 512];
+                    let request_buffer_size =
+                        stream.read(&mut request_buffer).expect("HTTP Request");
 
-                    stream
-                        .read_to_end(request)
-                        .expect("Cannot read from stream");
-
-                    // buf_reader.read_until('\0' as u8, request).unwrap();
-                    let request_immutable = &*request.clone();
-                    let request_string = String::from_utf8(request_immutable.to_vec()).unwrap();
-
+                    let request_string =
+                        String::from_utf8_lossy(&request_buffer[..request_buffer_size]).to_string();
+                    println!("request_string: {:?}", request_string);
                     let lines = convert_to_vector(request_string);
 
                     let req_line = lines.first().unwrap();
@@ -71,19 +69,20 @@ fn main() {
                         let dirname = env.get(2).expect("No directory given").clone();
                         let filename = target.strip_prefix("/files/").expect("Invalid filename");
                         let filepath_string = format!("{}{}", dirname, filename);
-                        let filepath = std::path::Path::new(&filepath_string);
+                        let filepath = std::path::Path::new(filepath_string.as_str());
 
                         if type_of_request == "POST" {
                             let content = lines.last().unwrap().as_bytes();
                             println!("content: {:?}", content);
                             println!("filepath: {:?}", filepath);
 
-                            let mut f = std::fs::File::create_new(filepath).unwrap();
+                            let mut file = OpenOptions::new()
+                                .create(true)
+                                .write(true)
+                                .open(&filepath)
+                                .expect("Cannot open file");
 
-                            f.write_all(content).unwrap();
-                            stream
-                                .write("HTTP/1.1 201 Created\r\n\r\n".as_bytes())
-                                .unwrap();
+                            file.write_all(content).unwrap();
 
                             println!("file created");
                             stream
