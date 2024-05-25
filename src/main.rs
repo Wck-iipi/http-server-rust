@@ -48,16 +48,37 @@ fn main() {
                     if target == "/" {
                         stream.write(b"HTTP/1.1 200 OK\r\n\r\n").unwrap();
                     } else if target.starts_with("/echo/") {
-                        let body = target.split("/").last().expect("Cannot parse currently");
-                        if body != "/" {
-                            stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
+                        let has_accept_encoding = lines
+                            .iter()
+                            .any(|line| line.starts_with("Accept-Encoding:"));
+
+                        if !has_accept_encoding {
+                            let body = target.split("/").last().expect("Cannot parse currently");
+                            if body != "/" {
+                                stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
+                            }
+                        } else {
+                            let encoding_type = lines
+                                .iter()
+                                .find(|line| line.to_lowercase().starts_with("accept-encoding:"))
+                                .unwrap()
+                                .split_whitespace()
+                                .nth(1)
+                                .unwrap();
+                            if encoding_type == "gzip" {
+                                let body: String = "foo".to_string();
+                                stream.write(format!("HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
+                            } else {
+                                let body: String = "bar".to_string();
+                                stream.write(format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", body.len(), body).as_bytes()).unwrap();
+                            }
                         }
                     } else if target.starts_with("/user-agent") {
                         for i in 1..lines.len() {
-                            if lines[i].starts_with("User-Agent") {
+                            if lines[i].to_lowercase().starts_with("user-agent") {
                                 let header_val = lines[i].split_whitespace().nth(1).unwrap();
                                 let fmt  = format!(
-                                "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", header_val.len(), header_val);
+                                    "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", header_val.len(), header_val);
                                 stream.write(fmt.as_bytes()).unwrap();
                                 break;
                             }
